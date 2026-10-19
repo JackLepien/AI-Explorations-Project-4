@@ -1,0 +1,13 @@
+THE HOLLOW LINE — ASSET CREDITS
+
+Developer: Project 4 author
+
+Visuals: Original inline SVG scene artwork and CSS effects authored for this project. No third-party visual assets, fonts, libraries, or branded materials are bundled.
+
+Audio: Original ambient drone, cave wind, and story tones synthesized in app.js with the Web Audio API. No third-party audio recordings or audio files are used.
+
+Public-domain dedication: Original audiovisual assets in this project are dedicated to the public domain under CC0 1.0 Universal:
+https://creativecommons.org/publicdomain/zero/1.0/
+
+Web Audio API technical reference (not a bundled audio asset):
+https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API

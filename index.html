@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#11151e">
+    <meta name="description" content="A tiny Halloween ghost-train mystery in a moonlit cave.">
+    <title>The Hollow Line</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <main class="experience" id="experience">
+      <div class="scene" id="scene" aria-label="A moonlit cave railway platform">
+        <svg class="scene-art" viewBox="0 0 390 844" preserveAspectRatio="xMidYMid slice" role="img" aria-labelledby="scene-title scene-desc">
+          <title id="scene-title">The Hollow Line, a cave railway</title>
+          <desc id="scene-desc">A quiet platform sits inside a blue cave. A lantern, ticket booth, and brass bell wait beside the tracks that lead to a distant tunnel.</desc>
+          <defs>
+            <linearGradient id="caveSky" x2="0" y2="1">
+              <stop stop-color="#151a2b"/>
+              <stop offset=".52" stop-color="#243247"/>
+              <stop offset="1" stop-color="#141d2a"/>
+            </linearGradient>
+            <linearGradient id="floor" x2="0" y2="1">
+              <stop stop-color="#34404a"/>
+              <stop offset=".42" stop-color="#202a34"/>
+              <stop offset="1" stop-color="#111820"/>
+            </linearGradient>
+            <linearGradient id="tunnel" x2="0" y2="1">
+              <stop stop-color="#070b12"/>
+              <stop offset="1" stop-color="#151d29"/>
+            </linearGradient>
+            <linearGradient id="lanternGlass" x2="0" y2="1">
+              <stop stop-color="#fff6bd"/>
+              <stop offset=".5" stop-color="#ffc963"/>
+              <stop offset="1" stop-color="#d16a32"/>
+            </linearGradient>
+            <radialGradient id="lampHalo">
+              <stop stop-color="#ffd881" stop-opacity=".7"/>
+              <stop offset=".38" stop-color="#ffc564" stop-opacity=".23"/>
+              <stop offset="1" stop-color="#ffc564" stop-opacity="0"/>
+            </radialGradient>
+            <radialGradient id="moonGlow">
+              <stop stop-color="#d6e7ee" stop-opacity=".26"/>
+              <stop offset="1" stop-color="#d6e7ee" stop-opacity="0"/>
+            </radialGradient>
+            <filter id="softGlow" x="-100%" y="-100%" width="300%" height="300%">
+              <feGaussianBlur stdDeviation="8"/>
+            </filter>
+            <filter id="mistBlur" x="-20%" y="-80%" width="140%" height="260%">
+              <feGaussianBlur stdDeviation="9"/>
+            </filter>
+          </defs>
+
+          <rect width="390" height="844" fill="url(#caveSky)"/>
+          <circle cx="305" cy="180" r="98" fill="url(#moonGlow)"/>
+          <path d="M286 109a34 34 0 1 0 35 56 29 29 0 0 1-35-56Z" fill="#d4e3e9" opacity=".78"/>
+          <g fill="#c8d6df" opacity=".65">
+            <circle cx="73" cy="143" r="1.4"/><circle cx="116" cy="208" r="1"/>
+            <circle cx="245" cy="110" r="1.3"/><circle cx="350" cy="238" r="1"/>
+            <circle cx="186" cy="128" r="1"/><circle cx="40" cy="260" r="1.2"/>
+            <circle cx="331" cy="82" r="1.1"/><circle cx="158" cy="271" r="1"/>
+          </g>
+
+          <path d="M0 0h390v128c-35 8-52 26-72 50-25 22-34 59-68 74-25 12-38 4-54 23-19 22-26 45-51 50-26 6-44-22-69-13-25 9-34 44-76 48V0Z" fill="#101722"/>
+          <path d="M0 0h390v47c-28 1-42 18-60 35-22 20-25 55-53 70-25 13-43-4-61 17-19 23-20 55-48 67-30 12-51-8-75 13-34 28-47 63-93 67V0Z" fill="#1a2230" opacity=".78"/>
+          <path d="M27 0 8 68l23 48-18 58 32 35-21 55 29 49H0V0Zm330 0 18 52-21 42 25 42-18 57 25 43-18 66 22 28V0Z" fill="#303a47" opacity=".55"/>
+          <path d="m96 0 12 56-17 33 11 39-21 41 11 49-17 41 10 43-35 42 11 37H0V0Zm227 0-11 48 17 45-13 40 26 31-17 48 21 47-11 42 33 30-8 41h30V0Z" fill="#273342" opacity=".65"/>
+
+          <path d="M0 442c52-11 87-24 130-19 45 6 77 14 124 4 43-9 89-8 136 8v409H0Z" fill="url(#floor)"/>
+          <path d="M0 478c46-15 87-23 128-15 43 8 82 20 121 11 48-10 89-8 141 6v62c-49-16-94-18-143-6-42 11-84 0-125-9-44-10-80-4-122 9Z" fill="#3c4750" opacity=".54"/>
+          <path d="M156 442c10-30 31-58 55-81 20-20 44-29 67-29 25 0 46 11 66 30 21 22 38 50 46 80Z" fill="#54616b" opacity=".55"/>
+          <path d="M180 441c8-23 24-43 41-57 17-14 34-20 53-20 20 0 37 7 53 21 17 14 31 34 39 56Z" fill="url(#tunnel)"/>
+          <path d="M198 440c8-19 22-35 37-44 13-9 26-12 40-12 14 0 28 4 41 13 15 10 27 25 34 43Z" fill="#090e17"/>
+          <path d="M218 440c14-20 32-29 57-29 23 0 42 10 56 29Z" fill="#344454" opacity=".28"/>
+          <circle cx="275" cy="418" r="7" fill="#ffc96e" opacity=".8"/>
+          <circle cx="275" cy="418" r="24" fill="#ffc96e" opacity=".14" filter="url(#softGlow)"/>
+
+          <path d="M148 444 75 844" fill="none" stroke="#111820" stroke-width="14"/>
+          <path d="M148 444 75 844" fill="none" stroke="#80909a" stroke-width="3" opacity=".73"/>
+          <path d="M251 444 331 844" fill="none" stroke="#111820" stroke-width="14"/>
+          <path d="M251 444 331 844" fill="none" stroke="#80909a" stroke-width="3" opacity=".73"/>
+          <g stroke="#687780" stroke-width="5" opacity=".74">
+            <path d="m145 466 111 0"/><path d="m138 490 127 0"/><path d="m130 520 142 0"/>
+            <path d="m120 557 161 0"/><path d="m109 602 181 0"/><path d="m98 656 204 0"/>
+            <path d="m87 721 228 0"/><path d="m76 800 256 0"/>
+          </g>
+          <path d="M0 498c39-9 70-5 105 6v150c-36-17-69-18-105-8Zm282 14c37-13 70-16 108-7v142c-38-9-72-6-108 9Z" fill="#67727a" opacity=".36"/>
+          <path d="M0 528c34-6 66-4 98 8M292 536c35-10 65-10 98-4" fill="none" stroke="#b1bcc0" stroke-width="2" opacity=".32"/>
+
+          <!-- Platform signal lantern -->
+          <path d="M76 485V362" stroke="#28343c" stroke-width="7"/>
+          <path d="M65 367h24l-3-35H68Z" fill="#2b3540" stroke="#98a1a0" stroke-width="2"/>
+          <path d="M69 358h16l-2-19H71Z" fill="url(#lanternGlass)"/>
+          <path d="M64 333h27l-7-8H71Z" fill="#56616a"/>
+          <path d="M72 369v12h12v-12" fill="none" stroke="#67737b" stroke-width="2"/>
+          <circle cx="77" cy="350" r="64" fill="url(#lampHalo)" class="lamp-halo"/>
+          <path d="M75 327c-12-10-2-18 2-26 7 8 12 18 1 26Z" fill="#ffe7a0" opacity=".8" class="lamp-flame"/>
+
+          <!-- Old ticket booth -->
+          <path d="M262 475v-89l73-3 12 96Z" fill="#39434a" stroke="#78838a" stroke-width="3"/>
+          <path d="m257 386 77-15 20 14-79 18Z" fill="#5a6266"/>
+          <rect x="276" y="405" width="45" height="33" rx="2" fill="#17212b" stroke="#a49c7a" stroke-width="2"/>
+          <path d="M280 409h37v25h-37Z" fill="#d8c994" opacity=".18"/>
+          <path d="M288 421h21" stroke="#cdbd91" stroke-width="2" opacity=".7"/>
+          <path d="M292 443h16v24h-16Z" fill="#222c34"/>
+          <circle cx="315" cy="450" r="2" fill="#e2c681"/>
+          <path d="M265 475h83v8h-87Z" fill="#19232c"/>
+
+          <!-- Brass bell -->
+          <path d="M160 487v-20h30v20" fill="#4c5150" stroke="#87908b" stroke-width="2"/>
+          <path d="M165 468c1-15 5-23 10-23s9 8 10 23Z" fill="#c29d5b" stroke="#f1d390" stroke-width="2"/>
+          <path d="M162 468h26" stroke="#e0c47d" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="175" cy="470" r="3" fill="#f0d18a"/>
+          <path d="M173 444v-10" stroke="#d0b46c" stroke-width="2"/>
+
+          <!-- Cave stalactites -->
+          <g fill="#3a4652">
+            <path d="m119 98 13 83 14-78 10 109 16-55 15 92 13-99 13 49 15-88 11 42 16-72Z"/>
+            <path d="m0 238 13 38 10-28 12 47 11-30 9 42 13-35 10 42 12-36 10 43 11-39 7 48H0Z"/>
+            <path d="m279 191 14 75 13-51 11 88 14-103 14 75 13-66 13 99 15-88 11 73 13-102V180Z"/>
+          </g>
+          <g fill="#7fc3cf" opacity=".54" class="fireflies">
+            <circle cx="122" cy="326" r="2.2"/><circle cx="139" cy="309" r="1.6"/>
+            <circle cx="104" cy="346" r="1.5"/><circle cx="228" cy="309" r="1.8"/>
+            <circle cx="247" cy="325" r="1.5"/><circle cx="99" cy="391" r="1.4"/>
+            <circle cx="219" cy="346" r="1.3"/>
+          </g>
+
+          <!-- Drifting cave mist -->
+          <g fill="#c2d2d4" opacity=".12" filter="url(#mistBlur)" class="mist mist-one">
+            <ellipse cx="107" cy="545" rx="115" ry="17"/>
+          </g>
+          <g fill="#d6e1de" opacity=".1" filter="url(#mistBlur)" class="mist mist-two">
+            <ellipse cx="298" cy="605" rx="105" ry="15"/>
+          </g>
+
+          <!-- Bats in the high cavern -->
+          <g fill="#0c111a" class="bat bat-one">
+            <path d="M0 0c-8-8-14-9-21-7 5 4 6 8 6 12-6-5-12-7-18-5 8 6 12 11 15 17 6-6 12-6 18 0 3-6 7-11 15-17-6-2-12 0-18 5 0-4 1-8 6-12-7-2-13-1-21 7Z"/>
+          </g>
+          <g fill="#0c111a" class="bat bat-two">
+            <path d="M0 0c-6-6-11-7-16-5 4 3 5 6 5 9-5-4-9-5-14-3 6 4 9 8 11 13 5-5 9-5 14 0 2-5 5-9 11-13-5-2-9-1-14 3 0-3 1-6 5-9-5-2-10-1-16 5Z"/>
+          </g>
+
+          <!-- Story overlays: stage changes are driven by the shared scene clock -->
+          <g class="story-art story-lantern" aria-hidden="true">
+            <circle cx="77" cy="350" r="9" fill="#fff0b1" class="story-core"/>
+            <path d="M77 351C90 329 101 333 112 319s28-4 41-19 23-7 35-25" fill="none" stroke="#ffe39a" stroke-width="3" stroke-linecap="round" class="light-trail"/>
+            <g fill="#fff0b1" class="trail-stars">
+              <circle cx="112" cy="319" r="3"/><circle cx="153" cy="300" r="2.5"/><circle cx="188" cy="275" r="2"/>
+            </g>
+          </g>
+          <g class="story-art story-ticket" aria-hidden="true">
+            <g class="flying-ticket">
+              <path d="M0 0h42v10a5 5 0 0 0 0 10v10H0V20a5 5 0 0 0 0-10Z" fill="#f3dfaa" stroke="#fff1cb" stroke-width="2"/>
+              <path d="M9 5v20M15 7v4m0 4v4m0 4v2" stroke="#967f57" stroke-width="2"/>
+              <text x="21" y="18" font-size="6" fill="#5b4e37" font-family="sans-serif">HOME</text>
+            </g>
+            <g fill="#e8f5f5" class="ticket-sparkles">
+              <path d="m183 365 3 7 7 3-7 3-3 7-3-7-7-3 7-3Z"/>
+              <path d="m220 325 2 5 5 2-5 2-2 5-2-5-5-2 5-2Z"/>
+              <path d="m250 379 2 5 5 2-5 2-2 5-2-5-5-2 5-2Z"/>
+            </g>
+          </g>
+          <g class="story-art story-bell" aria-hidden="true">
+            <g fill="none" stroke="#f4d995" stroke-width="2" class="echo-rings">
+              <circle cx="175" cy="455" r="20"/><circle cx="175" cy="455" r="38"/><circle cx="175" cy="455" r="58"/>
+            </g>
+            <path d="M176 453c38-46 72-48 105-38" fill="none" stroke="#dcecf0" stroke-width="3" stroke-dasharray="4 6" stroke-linecap="round" class="echo-trail"/>
+            <g fill="#eaf7f4" class="echo-ghost">
+              <path d="M0 16c0-10 7-16 15-16s15 6 15 16v14l-5-4-5 4-5-4-5 4-5-4-5 4Z"/>
+              <circle cx="10" cy="15" r="1.7" fill="#59677b"/><circle cx="20" cy="15" r="1.7" fill="#59677b"/>
+            </g>
+          </g>
+        </svg>
+
+        <header class="topbar">
+          <a class="wordmark" href="#" aria-label="The Hollow Line home">
+            <span class="wordmark-icon" aria-hidden="true">✦</span>
+            <span>THE HOLLOW LINE</span>
+          </a>
+          <div class="topbar-actions">
+            <button class="motion-button" id="motion-button" type="button" aria-pressed="false" disabled>
+              <span aria-hidden="true">◌</span>
+              <span id="motion-button-label">Motion</span>
+            </button>
+            <button class="pause-button" id="pause-button" type="button" aria-pressed="false" disabled>
+              <span class="pause-icon" aria-hidden="true">Ⅱ</span>
+              <span class="pause-label">Pause</span>
+            </button>
+          </div>
+        </header>
+
+        <section class="station-card" aria-label="Story progress">
+          <span class="station-kicker">NIGHT SERVICE</span>
+          <span class="station-name">Platform 0</span>
+          <span class="story-progress" id="story-progress">Stories found <strong>0 / 3</strong></span>
+          <div class="progress-dots" id="progress-dots" aria-hidden="true">
+            <span></span><span></span><span></span>
+          </div>
+        </section>
+
+        <div class="scene-intro" id="scene-intro">
+          <span class="intro-eyebrow">THE LAST STOP BEFORE MORNING</span>
+          <h1>The Hollow Line</h1>
+          <p>Somewhere in this cave, the night train is still making its rounds.</p>
+        </div>
+
+        <div class="hotspots" aria-label="Discoverable stories">
+          <button class="hotspot hotspot-lantern" data-story="lantern" type="button" aria-label="Explore the signal lantern">
+            <span class="hotspot-ring" aria-hidden="true"></span><span class="hotspot-tip">A light still waits</span>
+          </button>
+          <button class="hotspot hotspot-ticket" data-story="ticket" type="button" aria-label="Explore the old ticket booth">
+            <span class="hotspot-ring" aria-hidden="true"></span><span class="hotspot-tip">A ticket, perhaps?</span>
+          </button>
+          <button class="hotspot hotspot-bell" data-story="bell" type="button" aria-label="Explore the platform bell">
+            <span class="hotspot-ring" aria-hidden="true"></span><span class="hotspot-tip">Hear the cave answer</span>
+          </button>
+        </div>
+
+        <section class="story-caption" id="story-caption" aria-live="polite" aria-atomic="true" hidden>
+          <span class="caption-kicker" id="caption-kicker"></span>
+          <p id="caption-text"></p>
+        </section>
+
+        <section class="hint-card" id="hint-card" aria-live="polite" aria-atomic="true" hidden>
+          <span class="hint-mark" aria-hidden="true">✧</span>
+          <p id="hint-text"></p>
+        </section>
+
+        <div class="bottom-note" id="bottom-note">Tap the little lights to uncover a story</div>
+
+        <div class="intro-screen" id="intro-screen">
+          <div class="intro-panel">
+            <div class="intro-emblem" aria-hidden="true">
+              <span class="emblem-moon"></span>
+              <span class="emblem-rail">〰</span>
+            </div>
+            <p class="intro-eyebrow">A SMALL HALLOWEEN MYSTERY</p>
+            <h2>Last train.<br><em>One more story.</em></h2>
+            <p class="intro-copy">A quiet cave station. Three curious keepsakes. And a train that never quite left.</p>
+            <label class="motion-choice">
+              <input id="motion-toggle" type="checkbox">
+              <span class="toggle-track" aria-hidden="true"><span></span></span>
+              <span class="motion-copy"><strong>Reduce motion</strong><small id="motion-note">Gentle movement is on</small></span>
+            </label>
+            <button class="enter-button" id="enter-button" type="button">
+              <span>Enter the station</span><span aria-hidden="true">↗</span>
+            </button>
+            <p class="sound-note">Sound begins only after you enter. You can pause everything at any time.</p>
+          </div>
+          <span class="intro-credit">A gentle ghost story for curious travelers</span>
+        </div>
+
+        <div class="paused-screen" id="paused-screen" hidden>
+          <span class="pause-symbol" aria-hidden="true">Ⅱ</span>
+          <span>Station paused</span>
+          <small>Tap Resume when you're ready</small>
+        </div>
+        <div class="sr-only" id="live-status" role="status" aria-live="polite"></div>
+        <noscript><p class="noscript">This little station needs JavaScript to come to life.</p></noscript>
+      </div>
+    </main>
+  </body>
+</html>
