@@ -4,45 +4,34 @@
 
 Purpose: Keep a concise, testable description of the experience currently being built.
 
-## Working agreement
+## Approved direction
 
-Developer: Begin with the running prototype, approve the intended behavior, test it directly, and update this file when the intended result changes.
+Rework the single-screen portrait experience around the three supplied image layers: a purple cave background, a transparent pumpkin train, and turquoise ghosts/steam. Keep the tone spooky, playful, and appropriate for ages 10+.
 
-Agent: Read `AGENTS.md`, `brief.md`, `research.md`, and this file, then inspect the project. Turn decisions into acceptance checks without inventing product choices or freezing details that still require testing.
+## Behavior and system
 
-Start a fresh chat with:
+- Preserve a start screen, reduced-motion preference and toggle, coordinated Play/Pause, and title-based reset. Reset returns to the start screen and clears story and hint progress.
+- Enter starts animation and synthesized ambience. Pause freezes motion, audio, story progression, hold timing, hint time, and scene interaction together. Audio failures are announced while visual play remains available.
+- Each of three replayable stories uses two or three distinct player interactions, with immediate audiovisual feedback, a beginning, middle, and end, a short completion flourish, and progress credit. Actions include touching the train headlamp then dragging/selecting a ghost onto the cab; holding a ghost then tapping a carriage window; and tapping three pumpkins in order. Story duration varies with player input. Other story interactions are unavailable while a story sequence is active.
+- Progressive, non-directive hints use unpaused scene time at 26, 61, and 108 seconds, and wait until an active story completes before displaying.
+- Interaction targets are touch-friendly, keyboard reachable, and accessible by labels/status updates. Drag has a tap/select-and-target alternative; holding has keyboard support.
+- Publish the three PNG layers with the static app.
 
-`Read the project documents, inspect the running prototype, and help me specify the next useful build checkpoint.`
+## Acceptance checks
 
-## Current build contract
-
-### Approved direction
-
-Create a single-screen, portrait-friendly ghost-train platform inside a moonlit cave. A distant train tunnel is the focal point; rails, a platform, a ticket booth, a signal lantern, cave formations, and bats/fireflies establish the setting. Use original inline SVG/CSS visuals and synthesized audio, with no external asset dependencies.
-
-### Behavior and system
-
-- The start screen shows the device's reduced-motion preference before entering. Reduced motion is enabled by default when the device requests it and can be toggled before or during play.
-- Enter starts the scene and audio. A single Play/Pause control suspends/resumes ambient sound, animation, story progression, hint time, and scene interactions together.
-- The lantern, ticket booth, and platform bell are independently keyboard- and touch-activatable story targets. Each gives immediate feedback and launches a distinct story of 7.5 seconds, with a beginning, middle, and end. Other scene targets are disabled during playback; each story can be replayed. Completion updates a three-story progress indicator.
-- Add three progressively more specific but non-directive text hints after the stories are implemented, at 26, 61, and 108 seconds of unpaused scene time. Hints use active scene time, so pausing freezes their schedule. A hint due during a story appears after that story finishes.
-- If audio initialization or playback is unavailable, show an explicit status message and preserve visual interaction rather than failing silently.
-
-### Acceptance checks
-
-- At a phone-sized portrait viewport, the entire scene and controls fit without page scrolling; targets are readable, high contrast, keyboard reachable, and at least 44 CSS pixels.
-- The start screen precedes scene motion/audio; reduced-motion preference is visible and honored.
-- At least three ambient visual effects and a looping ambient sound run after entry.
-- Pause/resume freezes and restores all motion, audio, story/hint clocks, and scene interaction as one state.
-- Each of the three distinct stories lasts 5–10 seconds, has a clear beginning/middle/end, produces visual and audio feedback, blocks other scene targets while playing, returns to the scene, increments progress once, and can be replayed.
-- Progressive hints appear in order at 26, 61, and 108 seconds of unpaused scene time, do not advance while paused, and wait until the current story ends before appearing.
-- `credits.txt` links the CC0 dedication and identifies original visual/audio material; no third-party media or code is bundled.
-- Browser validation is in scope here. The public deployment at [The Hollow Line](https://jacklepien.github.io/AI-Explorations-Project-4/) loaded and completed a story during verification. Physical-phone validation remains pending device access.
+- At 320×640 and 390×844 portrait viewports, the scene and controls fit without page scrolling, and the three images form the intended cave/train/ghost composition.
+- Start precedes motion and audio; the device reduced-motion preference is honored, and the toggle works before and after entering.
+- Pause/resume freezes and restores motion, audio, hold/story progress, hint clocks, and scene interactions.
+- Each story progresses only through its specified two or three separate interactions, gives feedback at each step, credits completion once, is replayable, and cannot be interrupted by another story. Hold/drag interactions have keyboard/touch alternatives.
+- Hints appear in order at 26, 61, and 108 seconds of unpaused time, freeze during pause, and defer while a story is active.
+- Clicking the title from active, paused, or completed play resets the experience, restores the start screen, and clears progress.
+- The Pages artifact includes all three images; browser verification confirms the public HTTPS app loads with those assets.
+- Physical-phone and peer-playtest verification remain pending.
 
 ## Scope and revisions
 
-The Developer approved this scope and specified that timed hints follow implementation of the three story sequences. The workspace contains no pre-existing app to preserve. No unapproved external assets or branding will be introduced.
+The Developer approved the full visual rework and the three story interaction patterns. The AI-generated image files in `Assets/` are supplied project assets; their generation transcript is retained in `transcripts/`. The new interaction-led stories intentionally replace the former fixed-duration sequences.
 
 ## Saving the transcript
 
-When directed, save the complete conversation as `transcripts/spec-YYYY-MM-DD_HHMMSS.md`, label messages `Developer` and `Agent`, and confirm the path.
+When directed, save the complete conversation as `transcripts/spec-YYYY-MM-DD_HHMMSS.md` or `transcripts/build-YYYY-MM-DD_HHMMSS.md`, label messages `Developer` and `Agent`, and confirm the path.

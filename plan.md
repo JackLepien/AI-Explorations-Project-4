@@ -16,18 +16,18 @@ Start or continue a fresh chat with:
 
 ## Checkpoints
 
-1. **Done — Scene and controls** — Built the portrait cave railway, start screen, reduced-motion choice, in-scene motion toggle, and keyboard/touch targets. Verified at 320×640 and 390×844 with no page scrolling.
-2. **Done — Ambient systems** — Added drifting mist, bats, fireflies, lantern flicker, and synthesized ambient audio; Play/Pause coordinates the experience.
-3. **Done — Three stories** — Verified three distinct stories at 7–8 seconds each, interaction lockout, completion, progress, and replay.
-4. **Done — Timed hints** — Added progressive hints after the stories; browser-clock checks confirmed the 26/61/108-second schedule, no progression during pause, and deferred display during a story.
-5. **Done — GitHub Pages deployment** — The second Actions run succeeded, and the public HTTPS page loaded and completed a story in browser verification: [The Hollow Line](https://jacklepien.github.io/AI-Explorations-Project-4/).
+1. **Superseded — Original cave-platform build** — Kept in Git history; replaced by the approved image-layer redesign.
+2. **Done — Layered scene and controls** — Added cave, ghost, and pumpkin-train image layers with ambient ghost drift, mist, and train glow; preserved start, reduced motion, pause, and title reset.
+3. **Done — Interaction-led stories** — Browser-verified headlamp + ghost drag and keyboard-select fallback, ghost hold + carriage tap, and the three-pumpkin sequence. Progress reached 3 / 3; story replay remains available.
+4. **Done — Responsive and timed behavior** — Verified 320×640 and 390×844 without document scrolling, reduced-motion toggle, pause/resume, hold progress frozen over pause, reset from completed state, and the first active-time hint deferred until after pause.
+5. **In progress — Updated Pages deployment** — Workflow now includes all three `Assets/` images; deploy the redesign and verify the public image URLs and interactions.
 6. **Pending — External playtesting** — Peer playtesting and physical-phone verification remain outstanding; record observations when available.
 
 ## Evidence and revisions
 
 Record non-identifying playtest observations, separating what Users did or said from your interpretation. Use the findings to choose revision priorities and record what changed and how you verified the improvement.
 
-Implementation checkpoint: Developer approved the cave railway scope and requested that timed hints be added after the three story sequences. There was no app source or run configuration in the workspace, so this is a new static web app. In the integrated browser at 320×640 and 390×844, confirmed no page scrolling or header collision, all three stories, target lockout during playback, approximately 7.5-second active sequence timing, one-time progress credit, replay, and pause/resume. Reduced-motion emulation, in-scene motion toggling, and keyboard activation were also verified. Browser-clock checks confirmed all hint thresholds and freezing during pause; hints due during a story appeared after it ended. A pause overlay initially intercepted the Resume control; setting the overlay to ignore pointer events fixed it. The public GitHub Pages deployment succeeded; the deployed page loaded, entered the station, and completed the Lantern Keeper story with progress updating to 1 / 3. Peer playtesting and physical-phone testing remain pending. A local preview-process check was denied.
+Implementation checkpoint: Developer approved a complete visual rework using the three supplied PNGs and approved three interaction patterns. Replaced the inline SVG platform scene with the cave background, transparent ghost/steam layer, and transparent pumpkin train. The train and ghosts are full-viewport image layers; hotspots target the lamp/cab, passenger ghost/window, and three pumpkins. In browser testing at 320×640 and 390×844, document dimensions matched the viewport. Verified mouse drag onto the cab, keyboard-select-and-target fallback, a held ghost followed by a window tap, ordered pumpkin taps, progress to 3 / 3, reset to 0 / 3, and accessible keyboard/touch target sizing. Held a ghost for about 450 ms, paused for 1 second, resumed, and completed with another 450 ms hold, confirming pause time did not advance the hold. Verified reduced-motion behavior before and after entry; waited to the first clue threshold, confirmed it remained hidden during pause, then appeared after resuming. The Pages workflow now copies `Assets/`; publish and verify the redesign before marking delivery complete. Peer playtesting and physical-phone testing remain pending.
 
 Keep implementation progress and verification here. Update `research.md` when evidence changes a decision and `spec.md` when intended behavior changes; link to those updates rather than duplicating them. Record consequential changes, not every small adjustment.
 

@@ -38,7 +38,7 @@ When user directs agent to save transcript, save entire text of current session 
 ## The Hollow Line
 
 - This is a dependency-free static HTML/CSS/JavaScript app. Open `index.html` in a modern browser to run it locally, or serve this folder with `python -m http.server 8000` and visit `http://localhost:8000/`.
-- `index.html` contains the inline SVG scene and accessible controls; `styles.css` contains the responsive layout and visual effects; `app.js` coordinates audio, story timing, pause, reduced motion, and hints.
-- No build step or test runner is configured. Use the acceptance checks in `spec.md` and manually verify at a narrow phone-sized viewport, including keyboard activation, pause/resume, reduced motion, all three stories, replay, and timed hints.
-- `credits.txt` records the original CC0-dedicated audiovisual assets and the only external references.
-- `.github/workflows/pages.yml` publishes only the four app/credits files. In the GitHub repository, set **Settings → Pages → Build and deployment → Source** to **GitHub Actions**, then push to the default branch. The workflow's deployment environment reports the public URL; enable HTTPS enforcement in Pages settings when available.
+- `index.html` layers the cave background, ghost train, and turquoise ghost PNGs and supplies accessible interaction targets; `styles.css` defines the responsive scene and interface; `app.js` coordinates audio, story interactions, pause, reduced motion, and hints.
+- No build step or test runner is configured. Use the acceptance checks in `spec.md` and manually verify at phone-sized viewports, including keyboard/touch interactions, drag-and-drop, hold timing, pause/resume, reduced motion, all three stories, reset, and timed hints.
+- `credits.txt` identifies the AI-generated scene images supplied in `Assets/` and the original synthesized audio.
+- `.github/workflows/pages.yml` publishes the app, credits, and `Assets/` image layers. In the GitHub repository, set **Settings → Pages → Build and deployment → Source** to **GitHub Actions**, then push to the default branch. The workflow's deployment environment reports the public URL; enable HTTPS enforcement in Pages settings when available.

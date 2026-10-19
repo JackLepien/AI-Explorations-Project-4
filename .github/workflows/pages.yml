@@ -33,6 +33,7 @@ jobs:
         run: |
           mkdir -p _site
           cp index.html styles.css app.js credits.txt _site/
+          cp -R Assets _site/Assets
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4

@@ -26,14 +26,13 @@ Investigate unfamiliar techniques or asset sources as needed. Verify usage terms
 
 ### Current build decision
 
-- The Developer selected a ghost train platform inside a spooky cave and approved the proposed static HTML/CSS/JavaScript scope.
-- Use hand-authored inline SVG/CSS for the setting and Web Audio API oscillators/noise for the ambience and story effects. These are original in-project assets; there are no external media files, libraries, or brand assets to license or fetch.
-- The original audiovisual asset source is dedicated to the public domain under [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/). `credits.txt` records this dedication and the absence of external media. Web Audio API documentation: [MDN](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API).
-- The Developer requested story sequences before timed hints. See the accepted behavior and checks in `spec.md` and the checkpoints in `plan.md`.
-- After implementing and browser-checking all three stories, progressive hints were added at 26, 61, and 108 seconds of unpaused scene time. They use indirect clues for the lantern, ticket booth, and bell and wait until a story ends if a threshold passes during playback.
-- The Developer selected GitHub Pages for delivery. A minimal Actions workflow publishes only the app sources and credits, following [GitHub's custom workflow guidance](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages). It uses the documented `configure-pages`, `upload-pages-artifact`, and `deploy-pages` actions. After the Developer enabled Pages, the retry succeeded. The public deployment at [The Hollow Line](https://jacklepien.github.io/AI-Explorations-Project-4/) loaded and completed a story in browser verification.
+- The Developer approved a full visual rework using three supplied AI-generated transparent/opaque PNG layers: the purple mist cave backdrop, pumpkin ghost train, and turquoise ghosts/spectral steam. Their prompts and generation record are in `transcripts/ChatGPT Web Image Generation Transcript.txt`.
+- Keep a dependency-free static HTML/CSS/JavaScript implementation. Synthesize a subtle drone and story tones with Web Audio API oscillators/noise; no external audio files are used. Technical reference: [MDN Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API).
+- The three distinct interaction-led stories are: tap the train headlamp then drag/select a ghost to the cab; hold a turquoise ghost then tap its lit passenger window; and tap three pumpkins in sequence. Because progress is action-driven, duration varies with the player.
+- Preserve the start screen, reduced-motion support, title reset, coordinated pause, and progressive active-time hints at 26, 61, and 108 seconds. Pause freezes scene, hold/story, audio, and hint progression; clues wait until an active story finishes.
+- Update Pages delivery to include `Assets/` as well as the app and credits. The deployment continues to use GitHub's documented [custom workflow guidance](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages) and the `configure-pages`, `upload-pages-artifact`, and `deploy-pages` actions.
 
-Research limitation: the workspace had no starter app. The attempted check for an independently running local preview was denied, so the current preview could not be inspected.
+Research limitation: a source, rights statement, or creator attribution for the three supplied PNGs was not found in their folder; the local generation transcript identifies them as generated images. Credits identify that provenance without making a public-domain claim for the PNGs.
 
 ## Revisions
 
