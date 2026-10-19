@@ -37,7 +37,7 @@ Create a single-screen, portrait-friendly ghost-train platform inside a moonlit 
 - Each of the three distinct stories lasts 5–10 seconds, has a clear beginning/middle/end, produces visual and audio feedback, blocks other scene targets while playing, returns to the scene, increments progress once, and can be replayed.
 - Progressive hints appear in order at 26, 61, and 108 seconds of unpaused scene time, do not advance while paused, and wait until the current story ends before appearing.
 - `credits.txt` links the CC0 dedication and identifies original visual/audio material; no third-party media or code is bundled.
-- Browser validation is in scope here. A GitHub Actions workflow is prepared for GitHub Pages; the public HTTPS URL and physical-phone validation remain pending repository setup and device access.
+- Browser validation is in scope here. The GitHub Actions workflow is configured for the connected GitHub Pages repository; the public HTTPS URL remains pending a successful workflow run, and physical-phone validation remains pending device access.
 
 ## Scope and revisions
 
