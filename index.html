@@ -22,10 +22,6 @@
             <span>THE HOLLOW LINE</span>
           </a>
           <div class="topbar-actions">
-            <button class="motion-button" id="motion-button" type="button" aria-pressed="false" disabled>
-              <span aria-hidden="true">◌</span>
-              <span id="motion-button-label">Motion</span>
-            </button>
             <button class="pause-button" id="pause-button" type="button" aria-pressed="false" disabled>
               <span class="pause-icon" aria-hidden="true">Ⅱ</span>
               <span class="pause-label">Pause</span>
@@ -33,41 +29,29 @@
           </div>
         </header>
 
-        <section class="story-status" aria-label="Story progress">
-          <span class="eyebrow">NIGHT SERVICE</span>
-          <h1>Three little mysteries</h1>
-          <p class="progress-line">Stories found <strong id="story-progress">0 / 3</strong></p>
-          <div class="progress-dots" id="progress-dots" aria-hidden="true">
-            <span></span><span></span><span></span>
-          </div>
-        </section>
+        <div class="progress-icons" id="progress-icons" role="img" aria-label="0 of 3 stories found">
+          <span aria-hidden="true">✦</span><span aria-hidden="true">✦</span><span aria-hidden="true">✦</span>
+        </div>
 
         <div class="targets" aria-label="Story interactions">
           <button class="target target-lamp" data-target="lamp" type="button" aria-label="Tap the train headlamp to begin The Midnight Conductor" disabled>
-            <span class="target-label">Headlamp</span>
           </button>
           <button class="target target-cab" data-target="cab" type="button" aria-label="Cab window. Drop or select the ghost here" disabled hidden>
-            <span class="target-label">Cab</span>
           </button>
           <button class="ghost-token" id="ghost-token" type="button" aria-label="Select or drag a ghost to the train cab" hidden>
             <span aria-hidden="true">👻</span>
           </button>
 
           <button class="target target-hold-ghost" data-target="hold-ghost" type="button" aria-label="Press and hold the turquoise ghost" disabled>
-            <span class="target-label">Ghost</span>
           </button>
           <button class="target target-passenger-window" data-target="passenger-window" type="button" aria-label="Tap the passenger window after waking the ghost" disabled hidden>
-            <span class="target-label">Window</span>
           </button>
 
           <button class="target target-pumpkin target-pumpkin-one" data-target="pumpkin-one" type="button" aria-label="Tap the first pumpkin by the lower-left track" disabled>
-            <span class="target-label">1</span>
           </button>
           <button class="target target-pumpkin target-pumpkin-two" data-target="pumpkin-two" type="button" aria-label="Tap the pumpkin on the engine" disabled>
-            <span class="target-label">2</span>
           </button>
           <button class="target target-pumpkin target-pumpkin-three" data-target="pumpkin-three" type="button" aria-label="Tap the pumpkin on the right side of the track" disabled>
-            <span class="target-label">3</span>
           </button>
         </div>
 
@@ -77,12 +61,6 @@
           <div class="step-track" id="step-track" aria-label="Story interaction progress"></div>
         </section>
 
-        <section class="hint-card" id="hint-card" aria-live="polite" hidden>
-          <span class="hint-icon" aria-hidden="true">✧</span>
-          <p id="hint-text"></p>
-        </section>
-
-        <div class="bottom-note" id="bottom-note">Tap, hold, and drag to wake the train’s stories.</div>
 
         <div class="intro-screen" id="intro-screen">
           <div class="intro-panel">
@@ -90,11 +68,6 @@
             <p class="eyebrow">A SMALL HALLOWEEN MYSTERY</p>
             <h2>All aboard<br><em>the ghost train.</em></h2>
             <p class="intro-copy">Three curious stories are hiding in the steam. Explore the scene to find them.</p>
-            <label class="motion-choice">
-              <input id="motion-toggle" type="checkbox">
-              <span class="toggle-track" aria-hidden="true"><span></span></span>
-              <span class="motion-copy"><strong>Reduce motion</strong><small id="motion-note">Gentle movement is on</small></span>
-            </label>
             <button class="enter-button" id="enter-button" type="button">
               <span>Enter the station</span><span aria-hidden="true">↗</span>
             </button>

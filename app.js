@@ -4,22 +4,17 @@
   const enterButton = document.querySelector('#enter-button');
   const wordmark = document.querySelector('.wordmark');
   const pauseButton = document.querySelector('#pause-button');
-  const motionButton = document.querySelector('#motion-button');
-  const motionButtonLabel = document.querySelector('#motion-button-label');
   const pausedScreen = document.querySelector('#paused-screen');
   const introScreen = document.querySelector('#intro-screen');
-  const motionToggle = document.querySelector('#motion-toggle');
-  const motionNote = document.querySelector('#motion-note');
-  const storyProgress = document.querySelector('#story-progress');
-  const progressDots = [...document.querySelectorAll('#progress-dots span')];
+  const progressIcons = document.querySelector('#progress-icons');
+  const progressIconMarks = [...progressIcons.querySelectorAll('span')];
   const storyCard = document.querySelector('#story-card');
   const storyKicker = document.querySelector('#story-kicker');
   const storyLine = document.querySelector('#story-line');
   const stepTrack = document.querySelector('#step-track');
-  const hintCard = document.querySelector('#hint-card');
-  const hintText = document.querySelector('#hint-text');
-  const bottomNote = document.querySelector('#bottom-note');
   const liveStatus = document.querySelector('#live-status');
+  const targetsLayer = document.querySelector('.targets');
+  const IDLE_GLOW_RAMP_MS = 108000; // time idle before the circles reach full glow
   const targets = [...document.querySelectorAll('.target')];
   const ghostToken = document.querySelector('#ghost-token');
   const reducedMotionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -57,15 +52,9 @@
       targets: ['pumpkin-one', 'pumpkin-two', 'pumpkin-three']
     }
   };
-  const hints = [
-    [26000, 'Somewhere beneath the steam, a little engine light is still on duty.'],
-    [61000, 'A turquoise traveler may be waiting for the right carriage window.'],
-    [108000, 'The orange lights along the railway seem to keep a pattern.']
-  ];
 
   let started = false;
   let paused = false;
-  let reducedMotion = reducedMotionPreference.matches;
   let audioContext = null;
   let audioReady = false;
   let masterGain = null;
@@ -73,9 +62,7 @@
   let stepIndex = 0;
   let ending = false;
   let endingElapsed = 0;
-  let sceneElapsed = 0;
-  let hintIndex = 0;
-  let currentHint = '';
+  let idleElapsed = 0; // unpaused time with no story playing; drives the circle glow
   let holdActive = false;
   let holdElapsed = 0;
   let holdInterrupted = false;
@@ -85,17 +72,13 @@
   let animationFrame = 0;
   const foundStories = new Set();
 
-  motionToggle.checked = reducedMotion;
   applyMotionPreference();
   updateTargets();
   updateProgress();
 
+  // Motion follows the device's reduced-motion setting; there is no in-app toggle.
   function applyMotionPreference() {
-    experience.classList.toggle('reduced-motion', reducedMotion);
-    motionNote.textContent = reducedMotion ? 'Motion is minimized' : 'Gentle movement is on';
-    motionButton.setAttribute('aria-pressed', String(reducedMotion));
-    motionButton.setAttribute('aria-label', reducedMotion ? 'Turn off reduced motion' : 'Turn on reduced motion');
-    motionButtonLabel.textContent = reducedMotion ? 'Reduced' : 'Motion';
+    experience.classList.toggle('reduced-motion', reducedMotionPreference.matches);
   }
 
   function setStatus(message) {
@@ -103,8 +86,20 @@
   }
 
   function updateProgress() {
-    storyProgress.textContent = `${foundStories.size} / 3`;
-    progressDots.forEach((dot, index) => dot.classList.toggle('found', index < foundStories.size));
+    progressIcons.setAttribute('aria-label', `${foundStories.size} of 3 stories found`);
+    progressIconMarks.forEach((icon, index) => icon.classList.toggle('found', index < foundStories.size));
+  }
+
+  // The interaction circles slowly brighten while the player is idle, as a wordless hint.
+  function resetIdleGlow() {
+    idleElapsed = 0;
+    targetsLayer.style.setProperty('--hint', '0');
+  }
+
+  function updateIdleGlow(delta) {
+    idleElapsed += delta;
+    const level = Math.min(idleElapsed / IDLE_GLOW_RAMP_MS, 1);
+    targetsLayer.style.setProperty('--hint', level.toFixed(3));
   }
 
   function updateTargets() {
@@ -125,7 +120,6 @@
         (currentStory === 'lantern' && stepIndex === 1 && id === 'cab')
         || (currentStory === 'ghosts' && stepIndex === 1 && id === 'passenger-window')
         || (currentStory === 'pumpkins' && id === stories.pumpkins.targets[stepIndex])
-        || (currentStory === null && id === 'lamp')
       ));
       if (isPumpkin) target.classList.toggle('complete', currentStory === 'pumpkins' && stories.pumpkins.targets.indexOf(id) < stepIndex);
     }
@@ -201,11 +195,10 @@
   async function enterScene() {
     if (started) return;
     started = true;
-    sceneElapsed = 0;
+    resetIdleGlow();
     experience.classList.add('started');
     introScreen.classList.add('dismissed');
     pauseButton.disabled = false;
-    motionButton.disabled = false;
     updateTargets();
     setStatus('Welcome aboard. Tap the headlamp, wake a ghost, or follow the pumpkins.');
 
@@ -259,9 +252,7 @@
     stepIndex = 0;
     ending = false;
     endingElapsed = 0;
-    sceneElapsed = 0;
-    hintIndex = 0;
-    currentHint = '';
+    resetIdleGlow();
     holdActive = false;
     holdElapsed = 0;
     holdInterrupted = false;
@@ -281,10 +272,8 @@
     introScreen.classList.remove('dismissed');
     pausedScreen.hidden = true;
     storyCard.hidden = true;
-    hintCard.hidden = true;
     storyLine.textContent = '';
     stepTrack.replaceChildren();
-    hintText.textContent = '';
     ghostToken.style.left = '';
     ghostToken.style.top = '';
     ghostToken.classList.remove('dragging', 'selected');
@@ -292,8 +281,6 @@
     pauseButton.setAttribute('aria-pressed', 'false');
     pauseButton.querySelector('.pause-label').textContent = 'Pause';
     pauseButton.querySelector('.pause-icon').textContent = 'Ⅱ';
-    motionButton.disabled = true;
-    bottomNote.textContent = 'Tap, hold, and drag to wake the train’s stories.';
     updateProgress();
     updateTargets();
     setStatus('Station reset. Enter the station when you are ready.');
@@ -302,20 +289,19 @@
   function beginStory(id) {
     if (!started || paused || currentStory || !stories[id]) return;
     currentStory = id;
+    resetIdleGlow();
     stepIndex = 0;
     ending = false;
     endingElapsed = 0;
     ghostSelected = false;
     experience.classList.add(`story-${id}`);
     storyCard.hidden = false;
-    hintCard.hidden = true;
     storyKicker.textContent = `A LITTLE MYSTERY · ${stories[id].title}`;
     storyLine.textContent = stories[id].opening;
     stepTrack.replaceChildren(...Array.from({ length: stories[id].steps }, () => {
       const marker = document.createElement('span');
       return marker;
     }));
-    bottomNote.textContent = getNextInstruction(id, 0);
     setStatus(`${stories[id].title} begins. ${getNextInstruction(id, 0)}`);
     updateTargets();
   }
@@ -344,16 +330,15 @@
       foundStories.add(currentStory);
       updateProgress();
       storyLine.textContent = line;
-      bottomNote.textContent = 'The train’s story settles into the mist.';
       setStatus(`${story.title} complete. ${foundStories.size} of 3 stories found.`);
     } else {
-      bottomNote.textContent = getNextInstruction(currentStory, stepIndex);
       setStatus(`${story.title}: ${getNextInstruction(currentStory, stepIndex)}`);
     }
     updateTargets();
   }
 
   function finishStory() {
+    resetIdleGlow();
     experience.classList.remove(`story-${currentStory}`);
     currentStory = null;
     stepIndex = 0;
@@ -362,9 +347,7 @@
     holdElapsed = 0;
     ghostSelected = false;
     storyCard.hidden = true;
-    bottomNote.textContent = 'The train is ready for another little mystery.';
     updateTargets();
-    showDueHint();
   }
 
   function beginHold() {
@@ -374,7 +357,6 @@
     holdActive = true;
     if (!holdInterrupted) holdElapsed = 0;
     holdInterrupted = false;
-    bottomNote.textContent = 'Keep holding for a little longer…';
     setStatus('The ghost is stirring. Keep holding.');
     playTone(523, 0.25);
   }
@@ -385,20 +367,8 @@
     if (holdElapsed < 850) {
       holdElapsed = 0;
       holdInterrupted = false;
-      bottomNote.textContent = 'Almost. Hold the ghost a little longer.';
       setStatus('The ghost is still sleepy. Try holding a little longer.');
     }
-  }
-
-  function showDueHint() {
-    if (currentStory) return;
-    while (hintIndex < hints.length && sceneElapsed >= hints[hintIndex][0]) {
-      currentHint = hints[hintIndex][1];
-      hintIndex += 1;
-    }
-    if (!currentHint) return;
-    hintText.textContent = currentHint;
-    hintCard.hidden = false;
   }
 
   function handleTarget(target) {
@@ -499,7 +469,6 @@
     const delta = Math.max(now - lastFrame, 0);
     lastFrame = now;
     if (!paused) {
-      sceneElapsed += delta;
       if (holdActive) {
         holdElapsed += delta;
         if (holdElapsed >= 850) {
@@ -512,7 +481,7 @@
         endingElapsed += delta;
         if (endingElapsed >= 2700) finishStory();
       } else if (!currentStory) {
-        showDueHint();
+        updateIdleGlow(delta);
       }
     }
     animationFrame = requestAnimationFrame(tick);
@@ -524,17 +493,6 @@
     resetScene();
   });
   pauseButton.addEventListener('click', togglePause);
-  motionButton.addEventListener('click', () => {
-    reducedMotion = !reducedMotion;
-    motionToggle.checked = reducedMotion;
-    applyMotionPreference();
-    setStatus(reducedMotion ? 'Reduced motion enabled.' : 'Gentle motion enabled.');
-  });
-  motionToggle.addEventListener('change', () => {
-    reducedMotion = motionToggle.checked;
-    applyMotionPreference();
-    setStatus(reducedMotion ? 'Reduced motion enabled.' : 'Gentle motion enabled.');
-  });
   targets.forEach((target) => {
     target.addEventListener('click', () => handleTarget(target));
   });
@@ -571,13 +529,7 @@
     updateTargets();
   });
 
-  reducedMotionPreference.addEventListener?.('change', (event) => {
-    if (!started) {
-      reducedMotion = event.matches;
-      motionToggle.checked = reducedMotion;
-      applyMotionPreference();
-    }
-  });
+  reducedMotionPreference.addEventListener?.('change', applyMotionPreference);
 
   window.addEventListener('pagehide', () => {
     if (animationFrame) cancelAnimationFrame(animationFrame);
