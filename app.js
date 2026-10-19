@@ -19,6 +19,8 @@
   const bottomNote = document.querySelector('#bottom-note');
   const liveStatus = document.querySelector('#live-status');
   const hotspots = [...document.querySelectorAll('.hotspot')];
+  const defaultHotspotLabels = hotspots.map((hotspot) => hotspot.getAttribute('aria-label'));
+  const wordmark = document.querySelector('.wordmark');
   const reducedMotionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   const stories = {
@@ -96,7 +98,9 @@
     hotspots.forEach((hotspot, index) => {
       const found = foundStories.has(hotspot.dataset.story);
       progressDots[index].classList.toggle('found', found);
-      if (found) hotspot.setAttribute('aria-label', `${stories[hotspot.dataset.story].title} — discovered; activate to replay`);
+      hotspot.setAttribute('aria-label', found
+        ? `${stories[hotspot.dataset.story].title} — discovered; activate to replay`
+        : defaultHotspotLabels[index]);
     });
     if (foundStories.size === 3) bottomNote.textContent = 'All three stories found — ride again whenever you like';
   }
@@ -200,17 +204,59 @@
     updateHotspots();
     setStatus(paused ? 'Station paused. Motion, sound, and story time are on hold.' : 'Station resumed.');
 
-    if (audioContext) {
+    const context = audioContext;
+    if (context) {
       try {
-        await (paused ? audioContext.suspend() : audioContext.resume());
+        await (paused ? context.suspend() : context.resume());
       } catch (error) {
+        if (audioContext !== context) return;
         console.error('Unable to update audio playback state:', error);
         audioReady = false;
-        if (masterGain && audioContext.state === 'running') masterGain.gain.setTargetAtTime(0, audioContext.currentTime, 0.03);
+        if (masterGain && context.state === 'running') masterGain.gain.setTargetAtTime(0, context.currentTime, 0.03);
         setStatus('Audio could not change state and has been muted. Visual playback continues.');
       }
     }
     lastFrame = performance.now();
+  }
+
+  function resetScene() {
+    started = false;
+    paused = false;
+    storyId = null;
+    storyElapsed = 0;
+    storyCueIndex = 0;
+    sceneElapsed = 0;
+    hintIndex = 0;
+    currentHint = '';
+    foundStories.clear();
+
+    if (animationFrame) cancelAnimationFrame(animationFrame);
+    animationFrame = 0;
+    if (audioContext && audioContext.state !== 'closed') {
+      audioContext.close().catch((error) => console.error('Unable to close audio context:', error));
+    }
+    audioContext = null;
+    masterGain = null;
+    audioReady = false;
+
+    experience.classList.remove('started', 'paused');
+    scene.classList.remove('story-running', 'story-lantern', 'story-ticket', 'story-bell', 'stage-1', 'stage-2', 'stage-3');
+    introScreen.classList.remove('dismissed');
+    pausedScreen.hidden = true;
+    caption.hidden = true;
+    captionKicker.textContent = '';
+    captionText.textContent = '';
+    hintCard.hidden = true;
+    hintText.textContent = '';
+    pauseButton.disabled = true;
+    pauseButton.setAttribute('aria-pressed', 'false');
+    pauseButton.querySelector('.pause-label').textContent = 'Pause';
+    pauseButton.querySelector('.pause-icon').textContent = 'Ⅱ';
+    motionButton.disabled = true;
+    bottomNote.textContent = 'Tap the little lights to uncover a story';
+    updateProgress();
+    updateHotspots();
+    setStatus('Station reset. Enter the station when you are ready.');
   }
 
   function startStory(id) {
@@ -287,6 +333,10 @@
   }
 
   enterButton.addEventListener('click', enterScene);
+  wordmark.addEventListener('click', (event) => {
+    event.preventDefault();
+    resetScene();
+  });
   pauseButton.addEventListener('click', togglePause);
   motionButton.addEventListener('click', () => {
     reducedMotion = !reducedMotion;
