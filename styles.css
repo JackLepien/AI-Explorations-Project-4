@@ -105,50 +105,87 @@ button { color: inherit; }
 
 .targets { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
 .target, .ghost-token { position: absolute; display: grid; place-items: center; padding: 0; pointer-events: auto; touch-action: none; }
+/* Targets are soft glows, not outlined buttons. Colour (--glow) matches the thing they sit on,
+   and --hint (0 to 1, set from app.js while the player is idle) brightens them. */
 .target {
+  --glow: 126, 255, 237;
+  --period: 3.4s;
   width: 58px;
   height: 58px;
-  border: 2px solid rgba(157, 255, 240, calc(.15 + .8 * var(--hint, 0)));
+  border: 0;
   border-radius: 50%;
-  background: transparent;
-  box-shadow: 0 0 calc(6px + 20px * var(--hint, 0)) rgba(98, 255, 231, calc(.05 + .6 * var(--hint, 0)));
+  /* pale core + coloured halo so the glow reads even against same-coloured art */
+  background: radial-gradient(circle, rgba(255, 255, 238, calc(.3 + .5 * var(--hint, 0))) 0%, rgba(var(--glow), calc(.5 + .4 * var(--hint, 0))) 30%, rgba(var(--glow), calc(.2 + .3 * var(--hint, 0))) 55%, transparent 72%);
   color: #fff7e9;
   cursor: pointer;
   transform: translate(-50%, -50%);
-  transition: border-color 1s linear, box-shadow 1s linear, background .18s, opacity .18s;
+  transition: opacity .18s;
+}
+/* A pale ripple spreads outward from each live target: movement that reads on any background. */
+.target::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 2px solid rgba(255, 250, 225, calc(.5 + .5 * var(--hint, 0)));
+  opacity: 0;
+  pointer-events: none;
 }
 .target:hover:not(:disabled), .target:focus-visible, .target.is-next {
-  border-color: rgba(255, 240, 168, .6);
-  background: rgba(34, 36, 46, .12);
-  box-shadow: 0 0 14px rgba(255, 208, 120, .3);
+  --glow: 255, 226, 150;
+  background: radial-gradient(circle, rgba(var(--glow), .8) 0%, rgba(var(--glow), .36) 45%, transparent 72%);
 }
-.target:disabled { opacity: .62; cursor: default; }
+.target:disabled { opacity: .35; cursor: default; }
 .target[hidden], .ghost-token[hidden] { display: none; }
-.target-lamp { left: 30%; top: 34%; width: 70px; height: 70px; }
-.target-cab { left: 58%; top: 47%; }
-.target-hold-ghost { left: 54%; top: 30%; width: 62px; height: 62px; }
-.target-passenger-window { left: 75%; top: 53%; width: 66px; height: 58px; border-radius: 10px; }
-.target-pumpkin-one { left: 8%; top: 87%; }
-.target-pumpkin-two { left: 28%; top: 52%; }
-.target-pumpkin-three { left: 95%; top: 77%; }
-.target-pumpkin { width: 46px; height: 46px; border-color: rgba(255, 176, 84, calc(.18 + .75 * var(--hint, 0))); box-shadow: 0 0 calc(6px + 20px * var(--hint, 0)) rgba(255, 135, 36, calc(.06 + .6 * var(--hint, 0))); color: #ffe0a0; font-size: 11px; font-weight: 800; }
+.target-lamp { --glow: 255, 190, 90; --period: 3.1s; left: 30%; top: 34%; width: 70px; height: 70px; }
+.target-cab { --glow: 255, 190, 90; left: 58%; top: 47%; }
+.target-ghost-lead { --period: 4.1s; left: 54%; top: 30%; width: 62px; height: 62px; }
+/* Destination of the ghost trace. app.js measures the trace against this element's centre. */
+.target-passenger-window { --glow: 255, 190, 90; left: 75%; top: 53%; width: 66px; height: 58px; border-radius: 10px; pointer-events: none; }
+.target-fog { width: 104px; height: 84px; --period: 5s; }
+.target-fog-one { left: 30%; top: 22%; }
+.target-fog-two { left: 82%; top: 16%; }
+.target-fog-three { left: 80%; top: 71%; }
+/* A small ghost cropped from the turquoise ghost art. --s is its on-screen size; the crop is a
+   130px-square window of the source image around the smallest ghost. */
+.ghost-sprite {
+  --s: 64px;
+  width: var(--s);
+  height: var(--s);
+  background: url("Assets/Turquoise Ghosts and Spectral Steam-2.png") calc(var(--s) * -5) calc(var(--s) * -5.1) / calc(var(--s) * 7.23) calc(var(--s) * 12.86) no-repeat;
+  filter: drop-shadow(0 0 9px rgba(126, 255, 237, .85));
+}
 .ghost-token {
   z-index: 5;
   left: 78%;
   top: 29%;
-  width: 64px;
-  height: 64px;
-  border: 1px solid rgba(126, 255, 237, .78);
+  padding: 0;
+  border: 0;
   border-radius: 50%;
-  background: rgba(20, 29, 45, .72);
-  box-shadow: 0 0 22px rgba(126, 255, 237, .45);
-  font-size: 29px;
   cursor: grab;
   touch-action: none;
   user-select: none;
+  transition: left .45s ease, top .45s ease; /* a missed drop floats the ghost back */
 }
-.ghost-token.dragging { z-index: 12; cursor: grabbing; transition: none; }
+.ghost-token:not([hidden]):not(.dragging) { animation: ghost-bob 2.4s ease-in-out infinite alternate; }
+.ghost-token.dragging { z-index: 12; cursor: grabbing; transition: none; filter: drop-shadow(0 0 16px rgba(126, 255, 237, 1)); }
 .ghost-token.selected { outline: 3px solid #fff0a8; outline-offset: 4px; }
+
+/* Ghost story: the wisp trail and the ghost that follows the finger */
+.trace-layer { position: absolute; inset: 0; z-index: 4; width: 100%; height: 100%; pointer-events: none; }
+#trace-trail {
+  fill: none;
+  stroke: rgba(255, 255, 250, .95); /* pale core so it reads over the teal steam */
+  stroke-width: 7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 5px rgba(255, 255, 255, .9)) drop-shadow(0 0 12px rgba(34, 200, 255, .9));
+  opacity: calc(.45 + .55 * var(--trace, 0));
+  transition: opacity .6s;
+}
+.trace-layer.fading #trace-trail { opacity: 0; }
+.trace-wisp { --s: 58px; position: absolute; z-index: 5; transform: translate(-50%, -50%); pointer-events: none; }
+.trace-wisp[hidden] { display: none; }
 
 .story-card {
   position: absolute;
@@ -204,17 +241,108 @@ button { color: inherit; }
 .experience.paused *, .experience.paused *::before, .experience.paused *::after { animation-play-state: paused !important; }
 .experience.reduced-motion *, .experience.reduced-motion *::before, .experience.reduced-motion *::after { animation: none !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 .experience.reduced-motion .ghost-layer { transform: none; }
-.target.is-next { animation: target-pulse 1.4s ease-in-out infinite alternate; }
-.target-pumpkin.complete { border-color: var(--gold); background: rgba(255, 153, 58, .5); }
-.experience.story-lantern .train-layer, .experience.story-pumpkins .train-layer { animation: none; }
+/* Live targets breathe from the moment the scene starts; the next expected one breathes faster. */
+.experience.started .target:not(:disabled) { animation: target-breathe var(--period) ease-in-out infinite alternate; }
+.experience.started .target.is-next:not(:disabled) { animation-duration: 1.3s; }
+.experience.started .target:not(:disabled)::after { animation: target-ripple var(--period) ease-out infinite; }
+.experience.started .target.is-next:not(:disabled)::after { animation-duration: 1.3s; }
+/* Visible reactions to input. The static filter keeps them readable under reduced motion. */
+.target.reject { filter: brightness(.45); }
+.target.wink { filter: brightness(2); }
+.experience.started .target.reject:not(:disabled) { animation: target-reject .5s ease-out; }
+.experience.started .target.wink:not(:disabled) { animation: target-wink .7s ease-out; }
+/* Fog banks: the fog itself is ::before (thins as --fog falls from 1 to 0), glowing eyes are ::after
+   (show through as it thins). The button itself paints nothing. */
+.target.target-fog, .target.target-fog:hover:not(:disabled), .target.target-fog:focus-visible { background: none; }
+.target-fog::before {
+  content: "";
+  position: absolute;
+  inset: -14%;
+  border-radius: 50%;
+  background:
+    radial-gradient(ellipse at 38% 52%, rgba(255, 252, 255, .98) 0, rgba(238, 224, 255, .85) 40%, transparent 74%),
+    radial-gradient(ellipse at 70% 40%, rgba(255, 250, 255, .9) 0, transparent 64%);
+  filter: blur(4px) drop-shadow(0 0 7px rgba(40, 20, 80, .55)) brightness(calc(1 + .15 * var(--hint, 0)));
+  opacity: var(--fog, 1);
+  transition: opacity .12s linear;
+  pointer-events: none;
+}
+.target-fog::after {
+  inset: auto;
+  left: calc(50% - 12px);
+  top: calc(50% - 3px);
+  width: 6px;
+  height: 6px;
+  border: 0;
+  border-radius: 50%;
+  background: #ffd84a;
+  box-shadow: 18px 0 0 #ffd84a, 0 0 9px 3px rgba(255, 216, 74, .9), 18px 0 9px 3px rgba(255, 216, 74, .9);
+  /* a faint glint of eyes shows even through untouched fog, brightening as it thins */
+  opacity: calc(.3 + (1 - var(--fog, 1)) * 1.3);
+}
+.experience.started .target-fog:not(:disabled)::before { animation: fog-drift 6s ease-in-out infinite alternate; }
+.experience.started .target-fog:not(:disabled)::after { animation: none; }
+.experience.started .target-fog.returning:not(:disabled)::before { animation: fog-return 1.3s ease-out, fog-drift 6s ease-in-out infinite alternate; }
+
+/* Bats released from the fog. Each is a wrapper (position and orbit) around a flapping sprite. */
+.bat-layer { position: absolute; inset: 0; z-index: 4; overflow: hidden; pointer-events: none; }
+.bat {
+  position: absolute;
+  width: var(--w);
+  transform: translate(-50%, -50%);
+  transition: left .7s ease-in-out, top .7s ease-in-out;
+  animation: bat-launch .9s ease-out both, bat-hover 1.7s ease-in-out .9s infinite alternate;
+}
+.bat-wing { display: block; width: 100%; aspect-ratio: var(--ratio); background: var(--sprite) center / contain no-repeat; filter: drop-shadow(0 0 7px rgba(190, 150, 255, .85)); transform-origin: 50% 60%; animation: bat-flap .2s ease-in-out infinite alternate; }
+.bat-1 { --w: 72px; --ratio: 157 / 77; --sprite: url("Assets/Bat-1.png"); }
+.bat-2 { --w: 46px; --ratio: 66 / 31; --sprite: url("Assets/Bat-2.png"); }
+.bat-3 { --w: 58px; --ratio: 94 / 41; --sprite: url("Assets/Bat-3.png"); }
+.bat.circling { animation: bat-orbit 1.7s linear calc(.7s - var(--phase, 0s)) infinite backwards; }
+.experience.story-lantern .train-layer { animation: none; }
 .story-lantern .train-layer { filter: drop-shadow(0 0 14px rgba(255, 191, 90, .8)); }
-.story-ghosts .ghost-layer { filter: drop-shadow(0 0 13px rgba(102, 255, 231, .8)); }
-.story-pumpkins .train-layer { filter: drop-shadow(0 0 15px rgba(255, 136, 46, .78)); }
+/* the ghost layer brightens as the trace nears the window (--trace runs 0 to 1) */
+.story-ghosts .ghost-layer { filter: drop-shadow(0 0 calc(6px + 22px * var(--trace, 0)) rgba(102, 255, 231, calc(.5 + .5 * var(--trace, 0)))) brightness(calc(1 + .25 * var(--trace, 0))); }
+.story-bats .cave-layer { filter: brightness(1.12) saturate(1.15); }
 
 @keyframes ghost-drift { from { transform: translateY(-4px); } to { transform: translateY(5px); } }
 @keyframes ambient-mist { from { opacity: .12; transform: translateY(5px); } to { opacity: .42; transform: translateY(-12px); } }
 @keyframes train-glow { from { filter: brightness(1) saturate(1); } to { filter: brightness(1.045) saturate(1.08); } }
-@keyframes target-pulse { from { box-shadow: 0 0 8px rgba(255, 208, 120, .15); } to { box-shadow: 0 0 16px rgba(255, 208, 120, .35); } }
+@keyframes target-breathe {
+  from { transform: translate(-50%, -50%) scale(.86); opacity: .75; }
+  to { transform: translate(-50%, -50%) scale(1.14); opacity: 1; }
+}
+@keyframes fog-drift { from { transform: translateX(-7px); } to { transform: translateX(7px); } }
+@keyframes fog-return { from { opacity: 0; } to { opacity: var(--fog, 1); } }
+@keyframes bat-launch {
+  from { transform: translate(-50%, -50%) scale(.2); opacity: 0; }
+  to { transform: translate(-50%, -50%) translateY(-34px) scale(1); opacity: 1; }
+}
+@keyframes bat-hover {
+  from { transform: translate(-50%, -50%) translateY(-34px); }
+  to { transform: translate(-50%, -50%) translateY(-46px) translateX(8px); }
+}
+@keyframes bat-flap { from { transform: scaleY(1); } to { transform: scaleY(.55); } }
+@keyframes bat-orbit {
+  from { transform: translate(-50%, -50%) rotate(0deg) translateX(var(--r, 120px)) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg) translateX(var(--r, 120px)) rotate(-360deg); }
+}
+@keyframes ghost-bob {
+  from { transform: translateY(-5px); }
+  to { transform: translateY(5px); }
+}
+@keyframes target-ripple {
+  from { transform: scale(.7); opacity: .9; }
+  to { transform: scale(2.1); opacity: 0; }
+}
+@keyframes target-reject {
+  0%, 100% { transform: translate(-50%, -50%); filter: brightness(1); }
+  20%, 60% { transform: translate(calc(-50% - 5px), -50%) scale(.9); filter: brightness(.4); }
+  40%, 80% { transform: translate(calc(-50% + 5px), -50%) scale(.9); filter: brightness(.7); }
+}
+@keyframes target-wink {
+  0%, 100% { transform: translate(-50%, -50%); filter: brightness(1); }
+  45% { transform: translate(-50%, -50%) scale(1.3); filter: brightness(2.2) saturate(1.4); }
+}
 
 @media (max-width: 350px) {
   .topbar { left: 10px; right: 10px; }

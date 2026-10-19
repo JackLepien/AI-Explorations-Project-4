@@ -20,8 +20,9 @@ Start or continue a fresh chat with:
 2. **Done — Layered scene and controls** — Added cave, ghost, and pumpkin-train image layers with ambient ghost drift, mist, and train glow; preserved start, reduced motion, pause, and title reset.
 3. **Done — Interaction-led stories** — Browser-verified headlamp + ghost drag and keyboard-select fallback, ghost hold + carriage tap, and the three-pumpkin sequence. Progress reached 3 / 3; story replay remains available.
 4. **Done — Responsive and timed behavior** — Verified 320×640 and 390×844 without document scrolling, reduced-motion toggle, pause/resume, hold progress frozen over pause, reset from completed state, and the first active-time hint deferred until after pause.
-5. **In progress — Updated Pages deployment** — Workflow now includes all three `Assets/` images; deploy the redesign and verify the public image URLs and interactions.
-6. **Pending — External playtesting** — Peer playtesting and physical-phone verification remain outstanding; record observations when available.
+5. **In progress — Playtest revision** (source: `playtest-notes.md`). Steps: (a) update spec/plan; (b) diegetic hint glows and visible reject feedback; (c) lantern story cues; (d) trace-path ghost story; (e) fog-scrub bat story; (f) rewrite card text to the approved drafts; (g) browser check at 320×640 and 390×844. (a)–(g) done pending Developer review. The approved card text for all three stories is in `app.js`. Steps 5 to 7 added the fog-scrub bat story (three fog banks; bats cut from the cave art into `Assets/Bat-1..3.png`; Enter or Space keyboard alternative; bats circle the train at the finale; fog and bats reset on replay), removed the pumpkin targets, and checked 320×640 and 390×844 screenshots, pause, reset and a reduced-motion finale. Scripted headless-Chrome checks passed for the arrow-key trace, a pointer stroke lifted early (visible reject, brightness reset), a completed stroke, and the lantern drag with a miss and a hit. Physical-phone testing is still pending.
+6. **In progress — Updated Pages deployment** — Workflow now includes all three `Assets/` images; deploy the redesign and verify the public image URLs and interactions.
+7. **Pending — External playtesting** — Peer playtesting and physical-phone verification remain outstanding; record observations when available.
 
 ## Evidence and revisions
 

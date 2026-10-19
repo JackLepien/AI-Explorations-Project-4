@@ -38,22 +38,26 @@
           </button>
           <button class="target target-cab" data-target="cab" type="button" aria-label="Cab window. Drop or select the ghost here" disabled hidden>
           </button>
-          <button class="ghost-token" id="ghost-token" type="button" aria-label="Select or drag a ghost to the train cab" hidden>
-            <span aria-hidden="true">👻</span>
+          <button class="ghost-token ghost-sprite" id="ghost-token" type="button" aria-label="Select or drag a ghost to the train cab" hidden>
           </button>
 
-          <button class="target target-hold-ghost" data-target="hold-ghost" type="button" aria-label="Press and hold the turquoise ghost" disabled>
+          <button class="target target-ghost-lead" data-target="ghost-lead" type="button" aria-label="Turquoise ghost. Drag from it toward the glowing carriage window, or use the arrow keys to steer it" disabled>
           </button>
-          <button class="target target-passenger-window" data-target="passenger-window" type="button" aria-label="Tap the passenger window after waking the ghost" disabled hidden>
-          </button>
+          <!-- Destination of the ghost trace: a glow only, not interactive -->
+          <span class="target target-passenger-window" data-target="passenger-window" aria-hidden="true" hidden></span>
 
-          <button class="target target-pumpkin target-pumpkin-one" data-target="pumpkin-one" type="button" aria-label="Tap the first pumpkin by the lower-left track" disabled>
-          </button>
-          <button class="target target-pumpkin target-pumpkin-two" data-target="pumpkin-two" type="button" aria-label="Tap the pumpkin on the engine" disabled>
-          </button>
-          <button class="target target-pumpkin target-pumpkin-three" data-target="pumpkin-three" type="button" aria-label="Tap the pumpkin on the right side of the track" disabled>
-          </button>
+          <!-- Fog banks hiding the cave's bats. Rub across one (or press Enter on it) to clear it. -->
+          <button class="target target-fog target-fog-one" data-target="fog-one" type="button" aria-label="Drifting fog bank on the upper left ledge. Rub it away, or press Enter to clear it in steps" disabled></button>
+          <button class="target target-fog target-fog-two" data-target="fog-two" type="button" aria-label="Drifting fog bank by the bridge. Rub it away, or press Enter to clear it in steps" disabled></button>
+          <button class="target target-fog target-fog-three" data-target="fog-three" type="button" aria-label="Drifting fog bank on the right rocks. Rub it away, or press Enter to clear it in steps" disabled></button>
         </div>
+
+        <!-- Bats released from the fog (sprites cut from the cave art) are added here by app.js -->
+        <div class="bat-layer" id="bat-layer" aria-hidden="true"></div>
+
+        <!-- Glowing wisp trail and the ghost that follows the player's finger (ghost story) -->
+        <svg class="trace-layer" id="trace-layer" aria-hidden="true"><polyline id="trace-trail" points=""></polyline></svg>
+        <div class="trace-wisp ghost-sprite" id="trace-wisp" aria-hidden="true" hidden></div>
 
         <section class="story-card" id="story-card" aria-live="polite" aria-atomic="true" hidden>
           <span class="eyebrow" id="story-kicker">A LITTLE MYSTERY</span>

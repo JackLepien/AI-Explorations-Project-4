@@ -4,6 +4,8 @@ Developer: Project 4 author
 
 Visuals: Three AI-generated PNGs supplied in the project’s Assets folder: “Purple mist gothic cave backdrop-1.png”, “Ghost Train on Pumpkin Rails-3.png”, and “Turquoise Ghosts and Spectral Steam-2.png”. The images were created with ChatGPT image generation for this project; no third-party visual assets, fonts, libraries, or branded materials are bundled.
 
+Derived visuals: “Bat-1.png”, “Bat-2.png”, and “Bat-3.png” in the Assets folder are transparent cut-outs of three bats from the AI-generated cave backdrop above, made with a short script for the fog story. The small ghost sprite used in two stories is a crop of the turquoise ghost PNG. No other source is involved.
+
 Audio: Original ambient drone and story tones synthesized in app.js with the Web Audio API. No third-party audio recordings or audio files are used.
 
 The three provided images are AI-generated for this project; no external image source is used. The public-domain dedication below applies to original synthesized audiovisual content created for this project, not to the separately identified PNGs.

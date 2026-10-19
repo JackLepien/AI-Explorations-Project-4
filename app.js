@@ -14,42 +14,57 @@
   const stepTrack = document.querySelector('#step-track');
   const liveStatus = document.querySelector('#live-status');
   const targetsLayer = document.querySelector('.targets');
-  const IDLE_GLOW_RAMP_MS = 108000; // time idle before the circles reach full glow
+  const IDLE_GLOW_RAMP_MS = 12000; // time idle before the glows reach full strength
+  const SIGNAL_MS = 600; // how long a reject/wink reaction stays on a target
   const targets = [...document.querySelectorAll('.target')];
   const ghostToken = document.querySelector('#ghost-token');
+  const traceLayer = document.querySelector('#trace-layer');
+  const traceTrail = document.querySelector('#trace-trail');
+  const traceWisp = document.querySelector('#trace-wisp');
+  const ghostLead = document.querySelector('[data-target="ghost-lead"]');
+  const passengerWindow = document.querySelector('[data-target="passenger-window"]');
+  const TRACE_GOAL_RADIUS = 40; // px from the window's centre that counts as arriving
+  const TRACE_HALFWAY = 0.5; // share of the way to the window that completes the first step
+  const TRACE_KEY_STEP = 28; // px the ghost moves per arrow-key press
+  const TRACE_FADE_MS = 650;
+  const FOG_CLEAR_PX = 240; // px of rubbing across a fog bank that clears it
+  const FOG_REACH_PX = 90; // rubbing only counts this close to the bank's centre
+  const FOG_MAX_STEP_PX = 30; // caps how much one pointer event can clear
+  const FOG_KEY_STEP = 0.34; // share cleared by one Enter or Space press (three presses clear a bank)
+  const batLayer = document.querySelector('#bat-layer');
   const reducedMotionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   const stories = {
     lantern: {
       title: 'The Midnight Conductor',
       steps: 2,
-      opening: 'A quiet glow flickers inside the engine. Perhaps the train is waiting for someone.',
+      opening: 'The engine has sat dark since the last midnight run. A conductor is missing.',
       progressLines: [
-        'The headlamp wakes. A little ghost drifts closer through the steam.',
-        'The conductor takes the controls. The pumpkin train rolls into its midnight story.'
+        'The headlamp wakes and lights the mist. Something is drifting toward the train.',
+        'A ghost takes the controls with a tip of an invisible cap. The Midnight Line rolls again.'
       ],
       targets: ['lamp', 'cab']
     },
     ghosts: {
       title: 'Passengers of the Mist',
       steps: 2,
-      opening: 'A sleepy passenger floats beside the train, dreaming in turquoise.',
+      opening: 'A lonely ghost trails behind the train, with no ticket and nowhere to sit.',
       progressLines: [
-        'The ghost stirs awake. A carriage window glows with a warm welcome.',
-        'The passenger slips aboard. Friendly faces shimmer through every carriage window.'
+        'The ghost slips along the steam, following the way you point.',
+        'A carriage window glows for it. All aboard, and the empty seats fill with friends.'
       ],
-      targets: ['hold-ghost', 'passenger-window']
+      targets: ['ghost-lead', 'passenger-window']
     },
-    pumpkins: {
-      title: 'The Pumpkin Parade',
+    bats: {
+      title: 'Roosting in the Mist',
       steps: 3,
-      opening: 'Three little pumpkins are keeping time along the railway.',
+      opening: 'Something is stirring in the fog along the cave ledges.',
       progressLines: [
-        'The trackside pumpkin winks. A second light answers from the engine.',
-        'The engine grins. One last pumpkin is waiting down the line.',
-        'All three lights shine together. The train leads a tiny parade through the cave.'
+        'Two glowing eyes blink awake in the mist. A bat shakes off its sleep.',
+        'A second roost is cleared. Wings rustle all through the cave.',
+        'The whole colony takes flight and escorts the train down the line.'
       ],
-      targets: ['pumpkin-one', 'pumpkin-two', 'pumpkin-three']
+      targets: ['fog-one', 'fog-two', 'fog-three']
     }
   };
 
@@ -63,9 +78,12 @@
   let ending = false;
   let endingElapsed = 0;
   let idleElapsed = 0; // unpaused time with no story playing; drives the circle glow
-  let holdActive = false;
-  let holdElapsed = 0;
-  let holdInterrupted = false;
+  let trace = null; // the stroke in progress in the ghost story, or null
+  let traceFadeTimer = 0;
+  let fogProgress = {}; // fog bank id -> 0 (untouched) to 1 (cleared)
+  const clearedFog = new Set();
+  let scrub = null; // the rub in progress on a fog bank, or null
+  let lastScrubDistance = 0; // how far the most recent rub travelled; tells a tap from a rub
   let dragState = null;
   let ghostSelected = false;
   let lastFrame = 0;
@@ -90,7 +108,17 @@
     progressIconMarks.forEach((icon, index) => icon.classList.toggle('found', index < foundStories.size));
   }
 
-  // The interaction circles slowly brighten while the player is idle, as a wordless hint.
+  // Brief visible reaction on a target: 'reject' (dims and shakes) or 'wink' (flares).
+  const signalTimers = new WeakMap();
+  function signal(element, kind) {
+    clearTimeout(signalTimers.get(element));
+    element.classList.remove('reject', 'wink');
+    void element.offsetWidth; // restart the CSS animation if the same reaction repeats
+    element.classList.add(kind);
+    signalTimers.set(element, setTimeout(() => element.classList.remove(kind), SIGNAL_MS));
+  }
+
+  // The interaction glows slowly brighten while the player is idle, as a wordless hint.
   function resetIdleGlow() {
     idleElapsed = 0;
     targetsLayer.style.setProperty('--hint', '0');
@@ -108,20 +136,18 @@
 
     for (const target of targets) {
       const id = target.dataset.target;
-      const isPumpkin = id.startsWith('pumpkin-');
-      const visible = id === 'lamp' || id === 'hold-ghost' || isPumpkin
+      const isFog = id.startsWith('fog-');
+      const visible = id === 'lamp' || id === 'ghost-lead' || (isFog && !clearedFog.has(id))
         || (currentStory === 'lantern' && id === 'cab' && stepIndex === 1)
-        || (currentStory === 'ghosts' && id === 'passenger-window' && stepIndex === 1);
+        || (currentStory === 'ghosts' && id === 'passenger-window');
       target.hidden = !visible;
-      const completedTrigger = (id === 'lamp' && currentStory === 'lantern')
-        || (id === 'hold-ghost' && currentStory === 'ghosts' && stepIndex >= 1);
+      const completedTrigger = id === 'lamp' && currentStory === 'lantern';
       target.disabled = unavailable || completedTrigger || (currentStory !== null && !activeTargets.includes(id));
+      // the window breathes faster once the ghost is halfway there
       target.classList.toggle('is-next', !unavailable && (
         (currentStory === 'lantern' && stepIndex === 1 && id === 'cab')
         || (currentStory === 'ghosts' && stepIndex === 1 && id === 'passenger-window')
-        || (currentStory === 'pumpkins' && id === stories.pumpkins.targets[stepIndex])
       ));
-      if (isPumpkin) target.classList.toggle('complete', currentStory === 'pumpkins' && stories.pumpkins.targets.indexOf(id) < stepIndex);
     }
 
     const canDragGhost = currentStory === 'lantern' && stepIndex === 1 && !ending && !paused;
@@ -200,7 +226,7 @@
     introScreen.classList.add('dismissed');
     pauseButton.disabled = false;
     updateTargets();
-    setStatus('Welcome aboard. Tap the headlamp, wake a ghost, or follow the pumpkins.');
+    setStatus('Welcome aboard. Tap the headlamp, lead the ghost along the steam, or rub away the fog.');
 
     try {
       if (createAudio()) await audioContext.resume();
@@ -220,8 +246,7 @@
   async function togglePause() {
     if (!started) return;
     paused = !paused;
-    holdActive = false;
-    if (paused && holdElapsed > 0) holdInterrupted = true;
+    if (paused) { endTrace(); scrub = null; } // a stroke in progress is let go; progress already earned stays
     experience.classList.toggle('paused', paused);
     pausedScreen.hidden = !paused;
     pauseButton.setAttribute('aria-pressed', String(paused));
@@ -253,9 +278,10 @@
     ending = false;
     endingElapsed = 0;
     resetIdleGlow();
-    holdActive = false;
-    holdElapsed = 0;
-    holdInterrupted = false;
+    endTrace();
+    clearTraceVisuals();
+    scrub = null;
+    resetFog();
     dragState = null;
     ghostSelected = false;
     foundStories.clear();
@@ -268,7 +294,7 @@
     masterGain = null;
     audioReady = false;
 
-    experience.classList.remove('started', 'paused', 'story-lantern', 'story-ghosts', 'story-pumpkins');
+    experience.classList.remove('started', 'paused', 'story-lantern', 'story-ghosts', 'story-bats');
     introScreen.classList.remove('dismissed');
     pausedScreen.hidden = true;
     storyCard.hidden = true;
@@ -309,8 +335,8 @@
   function getNextInstruction(id, index) {
     const instructions = {
       lantern: ['Tap the headlamp, then find the drifting ghost.', 'Drag the ghost to the cab, or select the ghost and tap the cab.'],
-      ghosts: ['Press and hold the turquoise ghost for a moment.', 'Tap the glowing passenger window.'],
-      pumpkins: ['Tap the pumpkin by the lower-left track.', 'Tap the pumpkin on the engine.', 'Tap the pumpkin on the right side of the track.']
+      ghosts: ['Press the turquoise ghost and drag toward the glowing carriage window, or focus it and steer with the arrow keys.', 'Keep guiding the ghost to the glowing window.'],
+      bats: ['Rub your finger across a drifting fog bank until it clears, or focus one and press Enter.', 'Another fog bank is hiding a bat. Rub it away.', 'One last fog bank is still hiding a bat. Rub it away.']
     };
     return instructions[id][Math.min(index, instructions[id].length - 1)];
   }
@@ -330,6 +356,7 @@
       foundStories.add(currentStory);
       updateProgress();
       storyLine.textContent = line;
+      if (currentStory === 'bats') sendBatsAroundTrain();
       setStatus(`${story.title} complete. ${foundStories.size} of 3 stories found.`);
     } else {
       setStatus(`${story.title}: ${getNextInstruction(currentStory, stepIndex)}`);
@@ -344,31 +371,81 @@
     stepIndex = 0;
     ending = false;
     endingElapsed = 0;
-    holdElapsed = 0;
     ghostSelected = false;
     storyCard.hidden = true;
+    clearTraceVisuals();
+    resetFog();
     updateTargets();
   }
 
-  function beginHold() {
-    if (!started || paused || ending) return;
+  // Position of an element's centre in scene pixels, the space the trace is drawn in.
+  function centerOf(element) {
+    const sceneBounds = scene.getBoundingClientRect();
+    const box = element.getBoundingClientRect();
+    return { x: box.left + box.width / 2 - sceneBounds.left, y: box.top + box.height / 2 - sceneBounds.top };
+  }
+
+  // Ghost story: the player leads the ghost from its start to the carriage window with a finger
+  // (or arrow keys). Progress is how much of the start-to-window distance the stroke has covered.
+  function beginTrace(viaKeyboard) {
+    if (!started || paused || ending || trace) return;
     if (!currentStory) beginStory('ghosts');
-    if (currentStory !== 'ghosts' || stepIndex !== 0) return;
-    holdActive = true;
-    if (!holdInterrupted) holdElapsed = 0;
-    holdInterrupted = false;
-    setStatus('The ghost is stirring. Keep holding.');
+    if (currentStory !== 'ghosts') return;
+    clearTimeout(traceFadeTimer);
+    clearTraceVisuals();
+    const origin = centerOf(ghostLead);
+    const goal = centerOf(passengerWindow);
+    trace = { origin, goal, point: origin, points: [origin], best: 0, viaKeyboard, length: Math.hypot(goal.x - origin.x, goal.y - origin.y) };
+    traceWisp.hidden = false;
+    traceWisp.style.left = `${origin.x}px`;
+    traceWisp.style.top = `${origin.y}px`;
     playTone(523, 0.25);
   }
 
-  function endHold() {
-    if (!holdActive) return;
-    holdActive = false;
-    if (holdElapsed < 850) {
-      holdElapsed = 0;
-      holdInterrupted = false;
-      setStatus('The ghost is still sleepy. Try holding a little longer.');
+  function moveTrace(x, y) {
+    if (!trace) return;
+    trace.point = { x, y };
+    const last = trace.points[trace.points.length - 1];
+    if (Math.hypot(x - last.x, y - last.y) >= 4) trace.points.push(trace.point);
+    const distance = Math.hypot(trace.goal.x - x, trace.goal.y - y);
+    trace.best = Math.max(trace.best, Math.min(Math.max(1 - distance / trace.length, 0), 1));
+    experience.style.setProperty('--trace', trace.best.toFixed(2));
+    traceTrail.setAttribute('points', trace.points.map((p) => `${p.x.toFixed(0)},${p.y.toFixed(0)}`).join(' '));
+    traceWisp.style.left = `${x}px`;
+    traceWisp.style.top = `${y}px`;
+
+    if (stepIndex === 0 && trace.best >= TRACE_HALFWAY) advanceStory();
+    if (stepIndex === 1 && distance <= TRACE_GOAL_RADIUS) {
+      advanceStory(); // the story is now ending, which lets go of the stroke
+      endTrace();
     }
+  }
+
+  // Let go of the stroke. The trail fades; brightness resets unless the story was completed.
+  function endTrace() {
+    if (!trace) return;
+    trace = null;
+    traceWisp.hidden = true;
+    traceLayer.classList.add('fading');
+    if (!ending) experience.style.setProperty('--trace', '0');
+    traceFadeTimer = setTimeout(clearTraceVisuals, TRACE_FADE_MS);
+  }
+
+  // Player lifted their finger or left the ghost: an unfinished stroke gets a visible refusal.
+  function liftTrace() {
+    if (!trace) return;
+    endTrace();
+    if (!ending) {
+      signal(ghostLead, 'reject');
+      setStatus('The ghost drifts back. Try leading it farther along the steam.');
+    }
+  }
+
+  function clearTraceVisuals() {
+    if (trace) return; // a new stroke is already under way
+    traceTrail.setAttribute('points', '');
+    traceLayer.classList.remove('fading');
+    if (!ending) experience.style.setProperty('--trace', '0');
   }
 
   function handleTarget(target) {
@@ -383,44 +460,103 @@
       return;
     }
 
-    if (id === 'hold-ghost') {
-      if (currentStory === 'ghosts' && stepIndex >= 1) {
-        setStatus('The ghost has found its carriage. Tap the glowing window.');
-      }
-      return;
-    }
+    if (id === 'ghost-lead') return; // handled by the pointer and key listeners below
 
     if (id === 'cab') {
       if (currentStory === 'lantern' && stepIndex === 1 && ghostSelected) {
         advanceStory();
       } else if (currentStory === 'lantern' && stepIndex === 1) {
+        signal(target, 'reject');
         setStatus('Select the ghost, then tap the cab, or drag the ghost there.');
       }
       return;
     }
 
-    if (id === 'passenger-window') {
-      if (currentStory === 'ghosts' && stepIndex === 1) advanceStory();
-      return;
-    }
+    // fog banks are handled by the rub and key listeners below
+  }
 
-    if (id.startsWith('pumpkin-')) {
-      const expected = stories.pumpkins.targets[stepIndex];
-      if (!currentStory) {
-        if (id !== stories.pumpkins.targets[0]) {
-          setStatus('One pumpkin gives a faint wink near the lower-left track.');
-          playTone(392, 0.25);
-          return;
-        }
-        beginStory('pumpkins');
-      }
-      if (currentStory !== 'pumpkins') return;
-      if (id === expected) advanceStory();
-      else {
-        setStatus('That pumpkin is waiting its turn. Follow the little numbered lights.');
-        playTone(330, 0.2);
-      }
+  // Bat story: rubbing a fog bank thins it until it clears and releases a bat.
+  function beginScrub(event, target) {
+    if (!started || paused || ending) return;
+    if (!currentStory) beginStory('bats');
+    if (currentStory !== 'bats') return;
+    target.setPointerCapture(event.pointerId);
+    scrub = { target, pointerId: event.pointerId, x: event.clientX, y: event.clientY, total: 0, sinceTone: 0 };
+    lastScrubDistance = 0;
+  }
+
+  function moveScrub(event) {
+    if (!scrub || scrub.pointerId !== event.pointerId) return;
+    const box = scrub.target.getBoundingClientRect();
+    const near = Math.hypot(event.clientX - (box.left + box.width / 2), event.clientY - (box.top + box.height / 2)) <= FOG_REACH_PX;
+    const step = Math.min(Math.hypot(event.clientX - scrub.x, event.clientY - scrub.y), FOG_MAX_STEP_PX);
+    scrub.x = event.clientX;
+    scrub.y = event.clientY;
+    if (!near) return;
+    scrub.total += step;
+    scrub.sinceTone += step;
+    lastScrubDistance = scrub.total;
+    const target = scrub.target;
+    if (scrub.sinceTone >= 70) {
+      scrub.sinceTone = 0;
+      playTone(200 + 260 * (fogProgress[target.dataset.target] || 0), 0.14); // a soft rustle that rises as it clears
     }
+    setFog(target, (fogProgress[target.dataset.target] || 0) + step / FOG_CLEAR_PX);
+  }
+
+  function endScrub() {
+    if (!scrub) return;
+    scrub = null;
+  }
+
+  function setFog(target, value) {
+    const id = target.dataset.target;
+    fogProgress[id] = Math.min(value, 1);
+    target.style.setProperty('--fog', (1 - fogProgress[id]).toFixed(2));
+    if (fogProgress[id] >= 1 && !clearedFog.has(id)) clearFog(target);
+  }
+
+  function clearFog(target) {
+    const spot = centerOf(target); // measure before the cleared bank is hidden
+    clearedFog.add(target.dataset.target);
+    scrub = null;
+    spawnBat(spot, clearedFog.size);
+    advanceStory();
+  }
+
+  // A bat copied from the cave art rises from the cleared bank and hovers there.
+  function spawnBat(spot, number) {
+    const bat = document.createElement('div');
+    bat.className = `bat bat-${(number - 1) % 3 + 1}`;
+    bat.style.left = `${spot.x}px`;
+    bat.style.top = `${spot.y}px`;
+    bat.style.setProperty('--r', `${[130, 95, 160][(number - 1) % 3]}px`);
+    bat.style.setProperty('--phase', `${[0, 0.57, 1.13][(number - 1) % 3]}s`);
+    const wing = document.createElement('span');
+    wing.className = 'bat-wing';
+    bat.append(wing);
+    batLayer.append(bat);
+  }
+
+  // Finale: every released bat sweeps to the train and circles it.
+  function sendBatsAroundTrain() {
+    batLayer.querySelectorAll('.bat').forEach((bat) => {
+      bat.style.left = '50%';
+      bat.style.top = '46%';
+      bat.classList.add('circling');
+    });
+  }
+
+  // Fog drifts back and the bats leave, so the story can be played again.
+  function resetFog() {
+    fogProgress = {};
+    clearedFog.clear();
+    batLayer.replaceChildren();
+    targets.filter((target) => target.dataset.target.startsWith('fog-')).forEach((target) => {
+      target.style.removeProperty('--fog');
+      target.classList.add('returning');
+      setTimeout(() => target.classList.remove('returning'), 1400);
+    });
   }
 
   function startDrag(event) {
@@ -459,6 +595,7 @@
       ghostSelected = false;
       ghostToken.style.left = '';
       ghostToken.style.top = '';
+      signal(cab, 'reject');
       setStatus('The ghost floats back. Try dropping it on the cab window.');
       updateTargets();
     }
@@ -469,14 +606,6 @@
     const delta = Math.max(now - lastFrame, 0);
     lastFrame = now;
     if (!paused) {
-      if (holdActive) {
-        holdElapsed += delta;
-        if (holdElapsed >= 850) {
-          holdActive = false;
-          holdInterrupted = false;
-          advanceStory();
-        }
-      }
       if (ending) {
         endingElapsed += delta;
         if (endingElapsed >= 2700) finishStory();
@@ -497,25 +626,65 @@
     target.addEventListener('click', () => handleTarget(target));
   });
 
-  const holdTarget = document.querySelector('[data-target="hold-ghost"]');
-  holdTarget.addEventListener('pointerdown', (event) => {
+  // Ghost story input: drag from the ghost, or focus it and steer with the arrow keys.
+  const ARROW_STEPS = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
+  ghostLead.addEventListener('pointerdown', (event) => {
     if (event.button !== undefined && event.button !== 0) return;
-    holdTarget.setPointerCapture(event.pointerId);
-    beginHold();
+    ghostLead.setPointerCapture(event.pointerId);
+    beginTrace(false);
+    if (trace) trace.pointerId = event.pointerId;
   });
-  holdTarget.addEventListener('pointerup', endHold);
-  holdTarget.addEventListener('pointercancel', endHold);
-  holdTarget.addEventListener('keydown', (event) => {
-    if ((event.code === 'Space' || event.code === 'Enter') && !event.repeat) {
-      event.preventDefault();
-      beginHold();
+  ghostLead.addEventListener('pointermove', (event) => {
+    if (!trace || trace.pointerId !== event.pointerId) return;
+    const bounds = scene.getBoundingClientRect();
+    moveTrace(event.clientX - bounds.left, event.clientY - bounds.top);
+  });
+  ghostLead.addEventListener('pointerup', (event) => {
+    if (trace && trace.pointerId === event.pointerId) liftTrace();
+  });
+  ghostLead.addEventListener('pointercancel', (event) => {
+    if (trace && trace.pointerId === event.pointerId) liftTrace();
+  });
+  ghostLead.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      if (trace && trace.viaKeyboard) liftTrace();
+      return;
     }
+    const step = ARROW_STEPS[event.key];
+    if (!step) return;
+    event.preventDefault();
+    if (!trace) beginTrace(true);
+    if (!trace || !trace.viaKeyboard) return;
+    moveTrace(trace.point.x + step[0] * TRACE_KEY_STEP, trace.point.y + step[1] * TRACE_KEY_STEP);
   });
-  holdTarget.addEventListener('keyup', (event) => {
-    if (event.code === 'Space' || event.code === 'Enter') endHold();
+  ghostLead.addEventListener('blur', () => {
+    if (trace && trace.viaKeyboard) liftTrace();
   });
-  holdTarget.addEventListener('click', (event) => {
-    if (event.detail === 0 && currentStory !== 'ghosts') beginStory('ghosts');
+  ghostLead.addEventListener('click', (event) => {
+    if (event.detail === 0 && currentStory !== 'ghosts') beginStory('ghosts'); // Enter or Space on the ghost
+  });
+
+  // Bat story input: rub across a fog bank, or focus it and press Enter or Space.
+  targets.filter((target) => target.dataset.target.startsWith('fog-')).forEach((bank) => {
+    bank.addEventListener('pointerdown', (event) => {
+      if (event.button !== undefined && event.button !== 0) return;
+      beginScrub(event, bank);
+    });
+    bank.addEventListener('pointermove', moveScrub);
+    bank.addEventListener('pointerup', endScrub);
+    bank.addEventListener('pointercancel', endScrub);
+    bank.addEventListener('click', (event) => {
+      if (!started || paused || ending) return;
+      if (event.detail === 0) { // keyboard: each press clears a share of the bank
+        if (!currentStory) beginStory('bats');
+        if (currentStory !== 'bats') return;
+        playTone(260 + 200 * (fogProgress[bank.dataset.target] || 0), 0.16);
+        setFog(bank, (fogProgress[bank.dataset.target] || 0) + FOG_KEY_STEP);
+      } else if (lastScrubDistance < 24) { // a tap with no rubbing: the fog only stirs
+        signal(bank, 'wink');
+        setStatus('The fog stirs but stays put. Try rubbing across it.');
+      }
+    });
   });
 
   ghostToken.addEventListener('pointerdown', startDrag);
