@@ -108,11 +108,11 @@
     progressIconMarks.forEach((icon, index) => icon.classList.toggle('found', index < foundStories.size));
   }
 
-  // Brief visible reaction on a target: 'reject' (dims and shakes) or 'wink' (flares).
+  // Brief visible reaction on a target: 'reject' (dims and shakes), 'wink' (flares) or 'smudge' (fog parts).
   const signalTimers = new WeakMap();
   function signal(element, kind) {
     clearTimeout(signalTimers.get(element));
-    element.classList.remove('reject', 'wink');
+    element.classList.remove('reject', 'wink', 'smudge');
     void element.offsetWidth; // restart the CSS animation if the same reaction repeats
     element.classList.add(kind);
     signalTimers.set(element, setTimeout(() => element.classList.remove(kind), SIGNAL_MS));
@@ -681,7 +681,7 @@
         playTone(260 + 200 * (fogProgress[bank.dataset.target] || 0), 0.16);
         setFog(bank, (fogProgress[bank.dataset.target] || 0) + FOG_KEY_STEP);
       } else if (lastScrubDistance < 24) { // a tap with no rubbing: the fog only stirs
-        signal(bank, 'wink');
+        signal(bank, 'smudge');
         setStatus('The fog stirs but stays put. Try rubbing across it.');
       }
     });
