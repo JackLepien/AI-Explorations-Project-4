@@ -1,0 +1,10 @@
+7fef7ad  2026-10-26 12:45:01 -0500  JackLepien  Clarify fog-rubbing cue in bat story and sync research and spec
+a2cccfd  2026-10-19 17:39:58 -0500  JackLepien  Rework interactions and stories after peer playtest
+ab44e14  2026-10-19 16:11:16 -0500  JackLepien  Simplify UI and replace text hints with gradual circle glow
+901490e  2026-10-18 20:03:08 -0500  JackLepien  Added AI transcripts
+fd25581  2026-10-18 19:54:07 -0500  JackLepien  Rework Hollow Line scene and stories
+06cb56b  2026-10-18 19:32:14 -0500  JackLepien  Reset station from the site wordmark
+1cd9949  2026-10-18 19:28:26 -0500  JackLepien  Keep interface visible while station is paused
+b2cb931  2026-10-18 19:25:06 -0500  JackLepien  Record successful GitHub Pages deployment
+9c24b0c  2026-10-18 19:23:38 -0500  JackLepien  Record Pages configuration for deployment retry
+598a307  2026-10-18 19:20:21 -0500  JackLepien  Build The Hollow Line Halloween experience

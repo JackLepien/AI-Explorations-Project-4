@@ -1,6 +1,6 @@
 THE HOLLOW LINE — ASSET CREDITS
 
-Developer: Project 4 author
+Developer: Jack Lepien
 
 Visuals: Three AI-generated PNGs supplied in the project’s Assets folder: “Purple mist gothic cave backdrop-1.png”, “Ghost Train on Pumpkin Rails-3.png”, and “Turquoise Ghosts and Spectral Steam-2.png”. The images were created with ChatGPT image generation for this project; no third-party visual assets, fonts, libraries, or branded materials are bundled.
 
